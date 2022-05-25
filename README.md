@@ -1,3 +1,10 @@
+# Resources
+
+- https://web.dev/payment-and-address-form-best-practices/
+- https://gitlab.com/catamphetamine/input-format#readme
+
+
+
 # Welcome to [Astro](https://astro.build)
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/starter)

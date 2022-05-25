@@ -1,0 +1,159 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const title = "Petition | Queens Park";
+---
+
+<BaseLayout title={title}>
+
+    <div class="container">
+
+        <div class="row">
+            <h2>We will send this letter to the local council</h2>
+        </div>
+
+        <div class="row">
+            <div class="col-sm">
+                <object id="testobject" data="" type="application/pdf" width="100%" height="100%">
+                    <div>No online PDF viewer installed</div>
+                </object>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col text-center">
+            <a href="/queenspark/details" class="btn btn-secondary" role="button">
+                Go back
+            </a>
+            </div>
+            <div class="col text-center">
+            <a href="/queenspark/pay" class="btn btn-secondary" role="button">
+                Continue to payment
+            </a>
+            </div>
+        </div>
+
+    </div>
+
+</BaseLayout>
+
+<style scoped>
+    object {
+        height: 80vh;
+    }
+</style>
+
+<script is:inline src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+
+<script is:inline src="https://unpkg.com/pdf-lib/dist/pdf-lib.js"></script>
+
+
+<script is:inline>
+
+// Loaded via <script> tag, create shortcut to access PDF.js exports.
+var pdfjsLib = window['pdfjs-dist/build/pdf'];
+var PDFLib = window['PDFLib'];
+
+async function asyncCall() {
+
+    var fields = {}
+    if (sessionStorage.getItem("fields")) {
+        fields = JSON.parse(sessionStorage.getItem('fields'));
+    } else {
+        window.location.href = "/queenspark/details";
+    }
+
+    // PDF Creation
+    const pdfDoc = await PDFLib.PDFDocument.create()
+
+    const font = await pdfDoc.embedFont(PDFLib.StandardFonts.TimesRoman)
+    const fontSize = 14
+
+    const page = pdfDoc.addPage()
+    const { width, height } = page.getSize()
+
+    var getMaxWidth = function(listOfText) {
+        var maxWidth = 0;
+        for (line of listOfText) {
+            var lineWidth = font.widthOfTextAtSize(line, fontSize);
+            if (lineWidth > maxWidth) {
+                maxWidth = lineWidth
+            }
+        }
+        return maxWidth
+    }
+
+    let date = new Date();
+    // Request a weekday along with a long date
+    let options = {year: 'numeric', month: 'long', day: 'numeric' };
+    const sent_date = date.toLocaleString('en-US', options);
+
+    var send_header = fields.address + "\n\n" + sent_date;
+    let headerMaxWidth = getMaxWidth(send_header.split("\n"))
+
+    const margin = width / 10;  
+    const XLim = width - margin;
+
+    page.drawText(send_header, {
+        x: XLim - headerMaxWidth,
+        y: height - 5 * fontSize,
+        font: font,
+        size: fontSize
+    });
+
+    var signature = fields.name
+    let signatureMaxWidth = getMaxWidth(signature.split("\n"))
+
+    page.drawText(signature, {
+        x: XLim - signatureMaxWidth - 100,
+        y: 10 * fontSize,
+        font: font,
+        size: fontSize
+    });
+
+    const pdfBytes = await pdfDoc.save()
+    const bytes  = new Uint8Array( pdfBytes ); 
+    const blob   = new Blob( [ bytes ], { type: "application/pdf" } );
+    const docUrl = URL.createObjectURL( blob );
+
+    var testobject = document.getElementById('testobject');
+    testobject.setAttribute('data', docUrl);
+
+}
+
+asyncCall();
+
+
+var hidden, visibilityChange;
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+  hidden = "hidden";
+  visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+  hidden = "msHidden";
+  visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+  hidden = "webkitHidden";
+  visibilityChange = "webkitvisibilitychange";
+}
+
+
+function handleVisibilityChange() {
+    if (document[hidden]) {
+
+    } else {
+        asyncCall();
+    }
+}
+
+document.addEventListener(visibilityChange, handleVisibilityChange, false);
+
+</script>
+
+<style scoped> 
+
+#the-canvas {
+  border: 1px solid black;
+  direction: ltr;
+}
+
+</style>

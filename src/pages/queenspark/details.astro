@@ -1,0 +1,79 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import CountryOptions from "../../components/CountryOptions.astro";
+
+const title = "Petition | Queens Park";
+---
+
+<BaseLayout title={title}>
+
+    <div class="container">
+        <div class="row">
+            <h1>Enter your details below</h1>
+
+            <p>We will generate a letter from you</p>
+
+            <form id="myform" action="javascript:sendContact();">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input id="name" name="name" class="form-control" autocomplete="name" maxlength={100} required>
+                    <div id="emailHelp" class="form-text">To personalise the petition letter.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    <textarea id="address" name="address" class="form-control" autocomplete="address" maxlength={300} rows={4} required></textarea>
+                    <div id="emailHelp" class="form-text">To ensure they can write back to you.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input id="email" name="email" type="email" class="form-control" autocomplete="email" aria-describedby="emailHelp" required>
+                    <div id="emailHelp" class="form-text">To inform you on the status of your letter.</div>
+                </div>
+            </form>
+        </div>
+
+        <div class="row">
+            <div class="col text-center">
+                <a href="/queenspark/" class="btn btn-secondary" role="button">
+                    Go back
+                </a>
+            </div>
+            <div class="col text-center">
+                <input type="submit" form="myform" value="Continue" class="btn btn-secondary" role="button"/>
+            </div>
+        </div>
+    </div>
+
+</BaseLayout>
+
+
+<script is:inline>
+
+    var fields = {};
+
+    window.onload = () => {
+
+        if (sessionStorage.getItem("fields")) {
+            fields = JSON.parse(sessionStorage.getItem('fields'));
+
+            document.getElementById('name').value = fields.name;
+            document.getElementById('address').value = fields.address;
+            document.getElementById('email').value = fields.email;
+        }
+
+        var form = document.getElementById('myform');
+            form.addEventListener('change', function() {
+                fields.name = document.getElementById('name').value;
+                fields.address = document.getElementById('address').value;
+                fields.email = document.getElementById('email').value;
+
+                sessionStorage.setItem('fields', JSON.stringify(fields));
+        });
+    };
+
+    var sendContact = function() {
+        console.log(fields);
+        window.location.href = "/queenspark/pdf";
+    }
+    
+</script>
