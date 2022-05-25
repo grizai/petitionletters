@@ -12,11 +12,17 @@ const title = "Petition | Queens Park";
             <h2>We will send this letter to the local council</h2>
         </div>
 
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-sm">
                 <object id="testobject" data="" type="application/pdf" width="100%" height="100%">
-                    <div>No online PDF viewer installed</div>
+                    No online PDF viewer installed
                 </object>
+            </div>
+        </div> -->
+
+        <div class="row">
+            <div class="col text-center">
+                <canvas id="the-canvas" width="100%" height="100%" ></canvas>
             </div>
         </div>
 
@@ -28,7 +34,7 @@ const title = "Petition | Queens Park";
             </div>
             <div class="col text-center">
             <a href="/queenspark/pay" class="btn btn-secondary" role="button">
-                Continue to payment
+                Pay and send
             </a>
             </div>
         </div>
@@ -39,6 +45,10 @@ const title = "Petition | Queens Park";
 
 <style scoped>
     object {
+        height: 80vh;
+    }
+
+    canvas {
         height: 80vh;
     }
 </style>
@@ -116,13 +126,52 @@ async function asyncCall() {
     const blob   = new Blob( [ bytes ], { type: "application/pdf" } );
     const docUrl = URL.createObjectURL( blob );
 
-    var testobject = document.getElementById('testobject');
-    testobject.setAttribute('data', docUrl);
+    // var testobject = document.getElementById('testobject');
+    // testobject.setAttribute('data', docUrl);
+
+
+    // The workerSrc property shall be specified.
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+    // pdfjsLib.disableWorker = true;
+
+    // Asynchronous download of PDF
+    var loadingTask = pdfjsLib.getDocument(docUrl);
+    loadingTask.promise.then(function(pdf) {
+    console.log('PDF loaded');
+    
+    // Fetch the first page
+    var pageNumber = 1;
+    pdf.getPage(pageNumber).then(function(page) {
+        console.log('Page loaded');
+
+        var scale = 1;
+        var viewport = page.getViewport({scale: scale});
+
+        // Prepare canvas using PDF page dimensions
+        var canvas = document.getElementById('the-canvas');
+        var context = canvas.getContext('2d');
+
+        // var viewport = page.getViewport(canvas.width / page.getViewport(1.0).width);
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        // Render PDF page into canvas context
+        var renderContext = {
+        canvasContext: context,
+        viewport: viewport
+        };
+
+        var renderTask = page.render(renderContext);
+        renderTask.promise.then(function () {
+        console.log('Page rendered');
+        });
+    });
+    }, function (reason) {
+        // PDF loading error
+        console.error(reason);
+    });
 
 }
-
-asyncCall();
-
 
 var hidden, visibilityChange;
 if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
@@ -144,6 +193,9 @@ function handleVisibilityChange() {
         asyncCall();
     }
 }
+
+asyncCall();
+
 
 document.addEventListener(visibilityChange, handleVisibilityChange, false);
 
