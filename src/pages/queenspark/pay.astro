@@ -27,9 +27,45 @@ const title = "Petition | Queens Park";
 
 </BaseLayout>
 
-
+<script is:inline src="https://js.stripe.com/v3/"></script>
 
 <script is:inline>
+
+
+      async function handleSubmit(event) {
+        event.preventDefault();
+        document
+          .querySelectorAll('button')
+          .forEach((button) => (button.disabled = true));
+
+        const form = new FormData(event.target);
+        const data = {
+          sku: form.get('sku'),
+          quantity: Number(form.get('quantity')),
+        };
+
+        const response = await fetch('/.netlify/functions/create-checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        }).then((res) => res.json());
+
+        const stripe = Stripe(response.publishableKey);
+        const { error } = await stripe.redirectToCheckout({
+          sessionId: response.sessionId,
+        });
+
+        if (error) {
+          document
+            .querySelectorAll('button')
+            .forEach((button) => (button.disabled = false));
+          console.error(error);
+        }
+      }
+
+
 
     var fields = {}
     if (sessionStorage.getItem("fields")) {
@@ -47,5 +83,13 @@ const title = "Petition | Queens Park";
 
     var text = document.createTextNode(fields.email);
     paragraph.appendChild(text);
+
+    // async function asyncCall() {
+    //     const data = await fetch('/.netlify/functions/get-products')
+    //         .then((res) => res.json())
+    //         .catch((err) => console.error(err));
+    // }
+
+    // asyncCall();
 
 </script>

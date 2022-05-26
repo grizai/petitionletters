@@ -1,0 +1,36 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+
+const title = "Petition | Queens Park"
+---
+
+<BaseLayout title={title}>
+
+	<div class="container">
+
+        <div class="row">
+            <h1>Success</h1>
+            <p>Your letter will be send it by post asap by our team.</p>
+            <p>You will be notified by email once done.</p>
+        </div>
+
+		<div class="row text-center">
+			<div class="col-sm">
+				<a href="/queenspark/" onclick="eraseSessionStorage();" class="btn btn-secondary" role="button">
+					Restart
+				</a>
+			</div>
+		</div>
+    </div>
+
+</BaseLayout>
+
+
+<script is:inline>
+
+    var eraseSessionStorage = function () {
+        sessionStorage.clear();     
+    }
+    
+</script>
+
