@@ -4,19 +4,20 @@ import BaseLayout from "../../layouts/BaseLayout.astro"
 const title = "Petition | Queens Park"
 ---
 
+
 <BaseLayout title={title}>
 
 	<div class="container">
 
         <div class="row">
             <h1>Success</h1>
-            <p>Your letter will be send it by post asap by our team.</p>
-            <p>You will be notified by email once done.</p>
+            <p>Your letter will be send by post asap by our team.</p>
+            <p id="email">You will be notified by email once done.</p>
         </div>
 
 		<div class="row text-center">
 			<div class="col-sm">
-				<a href="/queenspark/" onclick="eraseSessionStorage();" class="btn btn-secondary" role="button">
+				<a href="/queenspark/" class="btn btn-secondary" role="button">
 					Restart
 				</a>
 			</div>
@@ -26,11 +27,37 @@ const title = "Petition | Queens Park"
 </BaseLayout>
 
 
+<script is:inline src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
+
 <script is:inline>
 
-    var eraseSessionStorage = function () {
-        sessionStorage.clear();     
+    var fields = {}
+    if (sessionStorage.getItem("fields")) {
+        fields = JSON.parse(sessionStorage.getItem('fields'));
+
+        var email_p = document.getElementById("email");
+        email_p.innerText = "You will be notified by email at " + fields.email +  " once done."
+
+        async function triggerSave() {
+            const response = await fetch('/.netlify/functions/save-db', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(fields),
+            }).then((res) => res.json());
+        }
+        
+        triggerSave();
+
+        window.addEventListener("beforeunload", function( event ) {
+            sessionStorage.clear();
+        });
+
+    } else {
+        window.location.href = "/queenspark/details";
     }
-    
+
+
 </script>
 

@@ -11,8 +11,6 @@ const title = "Petition | Queens Park";
         <div class="row">
             <h1>Enter your details below</h1>
 
-            <p>We will generate a letter from you</p>
-
             <form id="myform" action="javascript:sendContact();">
                 <div class="mb-3">
                     <label for="name" class="form-label">Name</label>
@@ -46,6 +44,7 @@ const title = "Petition | Queens Park";
 
 </BaseLayout>
 
+<script is:inline src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
 
 <script is:inline>
 
@@ -66,6 +65,7 @@ const title = "Petition | Queens Park";
                 fields.name = document.getElementById('name').value;
                 fields.address = document.getElementById('address').value;
                 fields.email = document.getElementById('email').value;
+                fields.uuid = uuidv4();
 
                 sessionStorage.setItem('fields', JSON.stringify(fields));
         });

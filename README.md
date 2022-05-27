@@ -5,6 +5,16 @@
 
 
 
+## routing issue driving me nuts
+- https://github.com/netlify/cli/issues/3617
+- https://github.com/netlify/cli/blob/main/docs/netlify-dev.md#project-detection
+- https://answers.netlify.com/t/netlify-dev-functions-locally-troubleshooting/20183/10
+
+
+## debug functions
+- https://daily.dev/blog/how-to-debug-netlify-serverless-lambda-functions-using-vs-code
+- https://cli.netlify.com/functions-dev/
+
 # Welcome to [Astro](https://astro.build)
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/starter)

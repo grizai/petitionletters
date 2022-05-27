@@ -9,7 +9,8 @@ const title = "Petition | Queens Park";
     <div class="container">
 
         <div class="row">
-            <h2>We will send this letter to the local council</h2>
+			<h1>Your letter</h1>
+            <p>We propose to print and send this letter for you</p>
         </div>
 
         <!-- <div class="row">
@@ -22,9 +23,23 @@ const title = "Petition | Queens Park";
 
         <div class="row">
             <div class="col text-center">
-                <canvas id="the-canvas" width="100%" height="100%" ></canvas>
+                <iframe 
+                    id="pdfviewer"
+                    title="PDF"
+                    src={'/pdfjs-2.14.305-dist/web/viewer.html?file='}
+                    width = "100%"
+                    height="100%"
+                ></iframe>
             </div>
         </div>
+
+
+        <br>
+        <!-- <div class="row">
+            <div class="col text-center">
+                <canvas id="the-canvas" width="100%" height="100%" ></canvas>
+            </div>
+        </div> -->
 
         <div class="row">
             <div class="col text-center">
@@ -33,9 +48,9 @@ const title = "Petition | Queens Park";
             </a>
             </div>
             <div class="col text-center">
-            <a href="/queenspark/pay" class="btn btn-secondary" role="button">
+            <button onclick="triggerPayment();" class="btn btn-secondary" role="button">
                 Pay and send
-            </a>
+            </button>
             </div>
         </div>
 
@@ -44,12 +59,16 @@ const title = "Petition | Queens Park";
 </BaseLayout>
 
 <style scoped>
-    object {
+    /* object {
         height: 80vh;
     }
 
     canvas {
         height: 80vh;
+    } */
+
+    iframe {
+        height: 70vh;
     }
 </style>
 
@@ -57,155 +76,193 @@ const title = "Petition | Queens Park";
 
 <script is:inline src="https://unpkg.com/pdf-lib/dist/pdf-lib.js"></script>
 
+<script is:inline src="https://js.stripe.com/v3/"></script>
+
 
 <script is:inline>
 
-// Loaded via <script> tag, create shortcut to access PDF.js exports.
-var pdfjsLib = window['pdfjs-dist/build/pdf'];
-var PDFLib = window['PDFLib'];
-
-async function asyncCall() {
+    // Loaded via <script> tag, create shortcut to access PDF.js exports.
+    var pdfjsLib = window['pdfjs-dist/build/pdf'];
+    var PDFLib = window['PDFLib'];
 
     var fields = {}
-    if (sessionStorage.getItem("fields")) {
-        fields = JSON.parse(sessionStorage.getItem('fields'));
-    } else {
-        window.location.href = "/queenspark/details";
-    }
-
-    // PDF Creation
-    const pdfDoc = await PDFLib.PDFDocument.create()
-
-    const font = await pdfDoc.embedFont(PDFLib.StandardFonts.TimesRoman)
-    const fontSize = 14
-
-    const page = pdfDoc.addPage()
-    const { width, height } = page.getSize()
-
-    var getMaxWidth = function(listOfText) {
-        var maxWidth = 0;
-        for (line of listOfText) {
-            var lineWidth = font.widthOfTextAtSize(line, fontSize);
-            if (lineWidth > maxWidth) {
-                maxWidth = lineWidth
-            }
+        if (sessionStorage.getItem("fields")) {
+            fields = JSON.parse(sessionStorage.getItem('fields'));
+        } else {
+            window.location.href = "/queenspark/details";
         }
-        return maxWidth
+
+    async function displayPDF() {
+
+        // PDF Creation
+        const templateUrl = '/queens_park_template.pdf'
+        const existingPdfBytes = await fetch(templateUrl).then(res => res.arrayBuffer())
+
+        const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes)
+        // const pdfDoc = await PDFLib.PDFDocument.create()
+
+        const font = await pdfDoc.embedFont(PDFLib.StandardFonts.TimesRoman)
+        const fontSize = 11
+
+        const pages = pdfDoc.getPages()
+        const firstPage = pages[0]
+        const { width, height } = firstPage.getSize()
+
+        var getMaxWidth = function(listOfText) {
+            var maxWidth = 0;
+            for (line of listOfText) {
+                var lineWidth = font.widthOfTextAtSize(line, fontSize);
+                if (lineWidth > maxWidth) {
+                    maxWidth = lineWidth
+                }
+            }
+            return maxWidth
+        }
+
+        let date = new Date();
+        // Request a weekday along with a long date
+        let options = {year: 'numeric', month: 'long', day: 'numeric' };
+        const sent_date = date.toLocaleString('en-US', options);
+
+        var send_header = fields.address + "\n\n" + sent_date;
+        let headerMaxWidth = getMaxWidth(send_header.split("\n"))
+
+        console.log(fields.address)
+        console.log(send_header)
+
+        const margin = width / 10;  
+        const XLim = width - margin;
+
+        firstPage.setLineHeight(fontSize*1.1);
+
+        firstPage.drawText(send_header, {
+            x: XLim - headerMaxWidth,
+            y: height - 5 * fontSize,
+            font: font,
+            size: fontSize
+        });
+
+        var signature = fields.name
+        let signatureMaxWidth = getMaxWidth(signature.split("\n"))
+
+        firstPage.drawText(signature, {
+            x: 72,
+            y: 150,
+            font: font,
+            size: fontSize
+        });
+
+        const pdfBytes = await pdfDoc.save()
+        const bytes  = new Uint8Array( pdfBytes ); 
+        const blob   = new Blob( [ bytes ], { type: "application/pdf" } );
+        const docUrl = URL.createObjectURL( blob );
+
+        var pdfviewer = document.getElementById('pdfviewer');
+        pdfviewer.setAttribute('src', "/pdfjs-2.14.305-dist/web/viewer.html?file=" + docUrl);
+
+
+        // // The workerSrc property shall be specified.
+        // pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+        // // pdfjsLib.disableWorker = true;
+
+        // // Asynchronous download of PDF
+        // var loadingTask = pdfjsLib.getDocument(docUrl);
+        // loadingTask.promise.then(function(pdf) {
+        // console.log('PDF loaded');
+        
+        // // Fetch the first page
+        // var pageNumber = 1;
+        // pdf.getPage(pageNumber).then(function(page) {
+        //     console.log('Page loaded');
+
+        //     var scale = 1;
+        //     var viewport = page.getViewport({scale: scale});
+
+        //     // Prepare canvas using PDF page dimensions
+        //     var canvas = document.getElementById('the-canvas');
+        //     var context = canvas.getContext('2d');
+
+        //     // var viewport = page.getViewport(canvas.width / page.getViewport(1.0).width);
+        //     canvas.height = viewport.height;
+        //     canvas.width = viewport.width;
+
+        //     // Render PDF page into canvas context
+        //     var renderContext = {
+        //     canvasContext: context,
+        //     viewport: viewport
+        //     };
+
+        //     var renderTask = page.render(renderContext);
+        //     renderTask.promise.then(function () {
+        //     console.log('Page rendered');
+        //     });
+        // });
+        // }, function (reason) {
+        //     // PDF loading error
+        //     console.error(reason);
+        // });
+
     }
 
-    let date = new Date();
-    // Request a weekday along with a long date
-    let options = {year: 'numeric', month: 'long', day: 'numeric' };
-    const sent_date = date.toLocaleString('en-US', options);
-
-    var send_header = fields.address + "\n\n" + sent_date;
-    let headerMaxWidth = getMaxWidth(send_header.split("\n"))
-
-    const margin = width / 10;  
-    const XLim = width - margin;
-
-    page.drawText(send_header, {
-        x: XLim - headerMaxWidth,
-        y: height - 5 * fontSize,
-        font: font,
-        size: fontSize
-    });
-
-    var signature = fields.name
-    let signatureMaxWidth = getMaxWidth(signature.split("\n"))
-
-    page.drawText(signature, {
-        x: XLim - signatureMaxWidth - 100,
-        y: 10 * fontSize,
-        font: font,
-        size: fontSize
-    });
-
-    const pdfBytes = await pdfDoc.save()
-    const bytes  = new Uint8Array( pdfBytes ); 
-    const blob   = new Blob( [ bytes ], { type: "application/pdf" } );
-    const docUrl = URL.createObjectURL( blob );
-
-    // var testobject = document.getElementById('testobject');
-    // testobject.setAttribute('data', docUrl);
-
-
-    // The workerSrc property shall be specified.
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
-    // pdfjsLib.disableWorker = true;
-
-    // Asynchronous download of PDF
-    var loadingTask = pdfjsLib.getDocument(docUrl);
-    loadingTask.promise.then(function(pdf) {
-    console.log('PDF loaded');
-    
-    // Fetch the first page
-    var pageNumber = 1;
-    pdf.getPage(pageNumber).then(function(page) {
-        console.log('Page loaded');
-
-        var scale = 1;
-        var viewport = page.getViewport({scale: scale});
-
-        // Prepare canvas using PDF page dimensions
-        var canvas = document.getElementById('the-canvas');
-        var context = canvas.getContext('2d');
-
-        // var viewport = page.getViewport(canvas.width / page.getViewport(1.0).width);
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        // Render PDF page into canvas context
-        var renderContext = {
-        canvasContext: context,
-        viewport: viewport
+    async function triggerPayment() {
+        
+        const data = {
+          sku: "LETTER01",
+          fields: fields,
         };
 
-        var renderTask = page.render(renderContext);
-        renderTask.promise.then(function () {
-        console.log('Page rendered');
+        const response = await fetch('/.netlify/functions/create-checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        }).then((res) => res.json());
+
+        const stripe = Stripe(response.publishableKey);
+
+        const { error } = await stripe.redirectToCheckout({
+          sessionId: response.sessionId,
         });
-    });
-    }, function (reason) {
-        // PDF loading error
-        console.error(reason);
-    });
 
-}
-
-var hidden, visibilityChange;
-if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
-  hidden = "hidden";
-  visibilityChange = "visibilitychange";
-} else if (typeof document.msHidden !== "undefined") {
-  hidden = "msHidden";
-  visibilityChange = "msvisibilitychange";
-} else if (typeof document.webkitHidden !== "undefined") {
-  hidden = "webkitHidden";
-  visibilityChange = "webkitvisibilitychange";
-}
-
-
-function handleVisibilityChange() {
-    if (document[hidden]) {
-
-    } else {
-        asyncCall();
+        if (error) {
+          console.log("Error")
+        }   
     }
-}
 
-asyncCall();
+    var hidden, visibilityChange;
+    if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+    hidden = "hidden";
+    visibilityChange = "visibilitychange";
+    } else if (typeof document.msHidden !== "undefined") {
+    hidden = "msHidden";
+    visibilityChange = "msvisibilitychange";
+    } else if (typeof document.webkitHidden !== "undefined") {
+    hidden = "webkitHidden";
+    visibilityChange = "webkitvisibilitychange";
+    }
 
 
-document.addEventListener(visibilityChange, handleVisibilityChange, false);
+    function handleVisibilityChange() {
+        if (document[hidden]) {
+
+        } else {
+            displayPDF();
+        }
+    }
+
+    displayPDF();
+
+
+    document.addEventListener(visibilityChange, handleVisibilityChange, false);
 
 </script>
 
 <style scoped> 
 
-#the-canvas {
-  border: 1px solid black;
-  direction: ltr;
-}
+    #the-canvas {
+    border: 1px solid black;
+    direction: ltr;
+    }
 
 </style>

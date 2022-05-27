@@ -17,9 +17,9 @@ const title = "Petition | Queens Park";
 
 		<div class="row text-center">
 			<div class="col-sm">
-				<a href="/queenspark/details" class="btn btn-secondary" role="button">
-					Restart
-				</a>
+				<button onclick="handleSubmit();" class="btn btn-secondary" role="button">
+					Submit
+				</button>
 			</div>
 		</div>
 
@@ -32,16 +32,10 @@ const title = "Petition | Queens Park";
 <script is:inline>
 
 
-      async function handleSubmit(event) {
-        event.preventDefault();
-        document
-          .querySelectorAll('button')
-          .forEach((button) => (button.disabled = true));
-
-        const form = new FormData(event.target);
+      async function triggerPayment() {
+        
         const data = {
-          sku: form.get('sku'),
-          quantity: Number(form.get('quantity')),
+          sku: "LETTER01"
         };
 
         const response = await fetch('/.netlify/functions/create-checkout', {
@@ -58,12 +52,9 @@ const title = "Petition | Queens Park";
         });
 
         if (error) {
-          document
-            .querySelectorAll('button')
-            .forEach((button) => (button.disabled = false));
-          console.error(error);
+          console.log("Error")
         }
-      }
+    }
 
 
 
