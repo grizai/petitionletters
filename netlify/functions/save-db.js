@@ -4,15 +4,13 @@ const q = faunadb.query
 
 const client = new faunadb.Client({
     secret: process.env.FAUNA_SECRET_KEY,
-    domain: 'db.fauna.com', // Adjust if you are using Region Groups
+    // domain: 'db.fauna.com', // Adjust if you are using Region Groups
 })
 
 exports.handler = async (event) => {
 
     const fields = JSON.parse(event.body);
     fields.date = (new Date()).toString();
-
-    console.log("In SaveDB")
 
     var updateOrCreate = client.query(
         q.Let({
@@ -27,11 +25,13 @@ exports.handler = async (event) => {
         )
     )
 
-    console.log("updateOrCreate")
-
-    updateOrCreate
-        .then(function (res) { console.log('Result:', res) })
-        .catch(function (err) { console.log('Error:', err) })
+    await updateOrCreate
+        .then(function (res) { 
+            // console.log('Result:', res) 
+        })
+        .catch(function (err) { 
+            console.log('Error:', err) 
+        })
 
     return {
         statusCode: 200,
