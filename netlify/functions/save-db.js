@@ -1,16 +1,15 @@
 const faunadb = require('faunadb')
-const q = faunadb.query
-
-const client = new faunadb.Client({
-    secret: process.env.FAUNA_SECRET_KEY,
-    domain: 'db.fauna.com', // Adjust if you are using Region Groups
-})
 
 exports.handler = async (event) => {
 
     const fields = JSON.parse(event.body);
-
     fields.date = (new Date()).toString();
+
+    const q = faunadb.query
+    const client = new faunadb.Client({
+        secret: process.env.FAUNA_SECRET_KEY,
+        domain: 'db.fauna.com', // Adjust if you are using Region Groups
+    })
 
     var updateOrCreate = client.query(
         q.Let({
