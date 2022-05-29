@@ -9,31 +9,38 @@ const title = "Petition | Queens Park";
 
     <div class="container">
         <div class="row">
-            <h1>Enter your details below</h1>
+            <div class="col">
+                <h1>Enter your details below</h1>
 
-            <form id="myform" action="javascript:sendContact();">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Name</label>
-                    <input id="name" name="name" class="form-control" autocomplete="name" maxlength={100} required>
-                    <div id="emailHelp" class="form-text">To personalise the petition letter.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="address" class="form-label">Address</label>
-                    <textarea id="address" name="address" class="form-control" autocomplete="address" maxlength={300} rows={4} required></textarea>
-                    <div id="emailHelp" class="form-text">To ensure they can write back to you.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email address</label>
-                    <input id="email" name="email" type="email" class="form-control" autocomplete="email" aria-describedby="emailHelp" required>
-                    <div id="emailHelp" class="form-text">To inform you on the status of your letter.</div>
-                </div>
-            </form>
+                <form id="myform" action="javascript:sendContact();">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input id="name" name="name" class="form-control" autocomplete="name" maxlength={100} required>
+                        <div id="addressHelp" class="form-text">To personalise the petition letter.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea id="address" name="address" class="form-control" autocomplete="address" maxlength={300} rows={4} required></textarea>
+                        <div id="addressHelp" class="form-text">To ensure they can write back to you.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input id="email" name="email" type="email" class="form-control" autocomplete="email" aria-describedby="emailHelp" required>
+                        <div id="emailHelp" class="form-text">To inform you on the status of your letter.</div>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div class="row">
             <div class="col text-center">
                 <a href="/queenspark/" class="btn btn-secondary" role="button">
                     Go back
+                </a>
+            </div>
+            <div class="col text-center">
+                <a onclick="clearForm();" class="btn btn-secondary btn-light" role="button">
+                    Clear
                 </a>
             </div>
             <div class="col text-center">
@@ -44,14 +51,23 @@ const title = "Petition | Queens Park";
 
 </BaseLayout>
 
+<style scoped>
+	.form-text {
+		margin-top: 0.25rem;
+		font-size: .875em;
+		color: #6c757d;
+	}
+</style>
+
+
+
 <script is:inline src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
 
 <script is:inline>
 
     var fields = {};
 
-    window.onload = () => {
-
+    var updateFields = function() {
         if (sessionStorage.getItem("fields")) {
             fields = JSON.parse(sessionStorage.getItem('fields'));
 
@@ -59,6 +75,16 @@ const title = "Petition | Queens Park";
             document.getElementById('address').value = fields.address;
             document.getElementById('email').value = fields.email;
         }
+    }
+
+    window.onload = () => {
+
+        updateFields();
+
+        window.addEventListener('storage', event => {
+            console.log('storage');
+            updateFields();
+        });
 
         var form = document.getElementById('myform');
             form.addEventListener('change', function() {
@@ -68,12 +94,16 @@ const title = "Petition | Queens Park";
                 fields.uuid = uuidv4();
 
                 sessionStorage.setItem('fields', JSON.stringify(fields));
-        });
+        });        
     };
 
     var sendContact = function() {
-        console.log(fields);
         window.location.href = "/queenspark/pdf";
+    }
+
+    var clearForm = function() {
+        sessionStorage.clear();
+        document.getElementById("myform").reset();
     }
     
 </script>

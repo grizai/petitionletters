@@ -1,0 +1,96 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const title = "Petition | Contact";
+---
+
+<BaseLayout title={title}>
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col">
+                <h1>Contact</h1>
+
+                <p> You can email us at <a href="mailto:hello@petitionletters.com">hello@petitionletters.com</a></p>
+
+                <hr/>
+
+            </div>
+        </div>
+
+        <div id="formRow" class="row">
+            <div class="col">
+
+                <p> For quick and anonymous feedback, simply type a message in the box below and click send.</p>
+
+                <form id="messageForm" action="javascript:sendMessage();">
+                    <div class="mb-3">
+                        <textarea id="message" name="message" class="form-control" autocomplete="message" maxlength={300} rows={4} required></textarea>
+                        <div id="messageHelp" class="form-text">This message is anonymous, we will only be able to reply if you provide a way to contact you in your message.</div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="submitRow" class="row">
+            <div class="col text-center">
+                <input type="submit" form="messageForm" value="Send" class="btn btn-secondary" role="button"/>
+            </div>
+        </div>
+
+        <div id="alertRow" class="row" style="display:none">
+            <div class="col">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success!</strong> Thanks for reaching out.
+                    <button id="alertClose" type="button" class="close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</BaseLayout>
+
+<style scoped>
+	.form-text {
+		margin-top: 0.25rem;
+		font-size: .875em;
+		color: #6c757d;
+	}
+</style>
+
+<script is:inline>
+
+    async function sendMessage() {
+        
+        const data = {
+          message: document.getElementById('message').value,
+        };
+
+        const response = await fetch('/.netlify/functions/save-message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        }).then((res) => res.json());
+
+        document.getElementById("messageForm").reset();
+        document.getElementById("formRow").style.display = "none";
+        document.getElementById("submitRow").style.display = "none";
+        document.getElementById("alertRow").style.display = "block";
+    }
+
+    $('#alertClose').on('click', function() {
+        document.getElementById("formRow").style.display = "block";
+        document.getElementById("submitRow").style.display = "block";
+        document.getElementById("alertRow").style.display = "none";
+    });
+
+</script>
+
+    

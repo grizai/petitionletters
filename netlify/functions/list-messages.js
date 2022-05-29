@@ -10,17 +10,16 @@ exports.handler = async () => {
 
     var listAll = client.query(
     q.Map(
-        q.Paginate(q.Documents(q.Collection('letters'))),
+        q.Paginate(q.Documents(q.Collection('messages'))),
         q.Lambda(x => q.Get(x))
         )
     )
 
+    var results = {};
 
-    var results = {}
     await listAll
-        .then(function (res) { 
-            results = res;
-
+        .then(function (res) {
+            results.messages = res.data.map(item => item.data)
         })
 
     return {

@@ -10,15 +10,24 @@ const title = "Petition | Queens Park"
 	<div class="container">
 
         <div class="row">
-            <h1>Success</h1>
-            <p>Your letter will be send by post asap by our team.</p>
-            <p id="email">You will be notified by email once done.</p>
+            <div class="col">
+                <h1>Success</h1>
+                <p>Your letter will be sent by post asap by our team.</p>
+                <p id="email">You will be notified by email once done.</p>
+                <hr/>
+                <p>If you have any feedback on this, please <a href="/contact">contact us</a>, we are just starting and keen to improve.</p>
+            </div>
         </div>
-
-		<div class="row text-center">
-			<div class="col-sm">
-				<a href="/queenspark/" class="btn btn-secondary" role="button">
+        <br>
+		<div class="row">
+			<div class="col text-center">
+				<a href="/queenspark" class="btn btn-secondary" role="button">
 					Restart
+				</a>
+			</div>
+            <div class="col text-center">
+				<a href="/contact" class="btn btn-secondary" role="button">
+					Contact Us
 				</a>
 			</div>
 		</div>
@@ -39,7 +48,7 @@ const title = "Petition | Queens Park"
         email_p.innerText = "You will be notified by email at " + fields.email +  " once done."
 
         async function triggerSave() {
-            const response = await fetch('/.netlify/functions/save-db', {
+            const response = await fetch('/.netlify/functions/save-letter', {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',
@@ -50,7 +59,7 @@ const title = "Petition | Queens Park"
         
         triggerSave();
 
-        window.addEventListener("beforeunload", function( event ) {
+        window.addEventListener("unload", function( event ) {
             sessionStorage.clear();
         });
 
