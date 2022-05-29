@@ -1,8 +1,17 @@
+## To investigate
+
+Use of Boostrap 5 
+- navbar did not work
+
+
 # Resources
 
 - https://web.dev/payment-and-address-form-best-practices/
 - https://gitlab.com/catamphetamine/input-format#readme
 
+## Favicon
+
+- https://favicon.io/
 
 
 ## routing issue driving me nuts
