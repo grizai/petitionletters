@@ -3,6 +3,17 @@
 Use of Boostrap 5 
 - navbar did not work
 
+Dev vs prod keys - None of the below works for now within functions, which where most key are needed
+=> only solution seems to test for context in the function before loading the key (process.env.CONTEXT and process.env.BRANCH)
+=> OR to parse the code while it is moving to dist but that is ugly
+- https://www.npmjs.com/package/netlify-plugin-contextual-env
+- https://github.com/cball/netlify-plugin-contextual-env
+- https://answers.netlify.com/t/per-branch-environment-variables-secrets/49223/4
+- https://answers.netlify.com/t/support-guide-using-environment-variables-on-netlify-correctly/267
+- https://answers.netlify.com/t/netlify-toml-context-env-variables-do-not-apply-to-functions/410/8
+- https://answers.netlify.com/t/support-guide-conditional-build-deploy-behavior-for-context-branch-on-netlify/122
+
+
 
 # Resources
 

@@ -1,8 +1,20 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import CountryOptions from "../../components/CountryOptions.astro";
+// import CountryOptions from "../../components/CountryOptions.astro";
 
 const title = "Petition | Queens Park";
+
+const namePlaceholder = "E.g. Jane Doe"
+
+const addressPlaceholder = 
+`E.g.
+Flat 2/4
+2 Nithsdale Road
+G41 2AL, Glasgow
+`
+
+const emailPlaceholder = "E.g. jane.doe@domain.com"
+
 ---
 
 <BaseLayout title={title}>
@@ -15,17 +27,17 @@ const title = "Petition | Queens Park";
                 <form id="myform" action="javascript:sendContact();">
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
-                        <input id="name" name="name" class="form-control" autocomplete="name" maxlength={100} required>
+                        <input id="name" name="name" class="form-control" placeholder={namePlaceholder} autocomplete="name" maxlength={100} required>
                         <div id="addressHelp" class="form-text">To personalise the petition letter.</div>
                     </div>
                     <div class="mb-3">
                         <label for="address" class="form-label">Address</label>
-                        <textarea id="address" name="address" class="form-control" autocomplete="address" maxlength={300} rows={4} required></textarea>
+                        <textarea id="address" name="address" placeholder={addressPlaceholder} class="form-control" autocomplete="address" maxlength={300} rows={4} required></textarea>
                         <div id="addressHelp" class="form-text">To ensure they can write back to you.</div>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input id="email" name="email" type="email" class="form-control" autocomplete="email" aria-describedby="emailHelp" required>
+                        <input id="email" name="email" type="email" placeholder={emailPlaceholder} class="form-control" autocomplete="email" aria-describedby="emailHelp" required>
                         <div id="emailHelp" class="form-text">To inform you on the status of your letter.</div>
                     </div>
                 </form>

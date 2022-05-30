@@ -18,12 +18,12 @@ exports.handler = async (event) => {
         )
       )
 
-      await createMessage
+    await createMessage
         .then(function (res) { 
-            console.log('Result:', res) 
+            // console.log('Result:', res) 
         })
         .catch(function (err) { 
-            // console.log('Error:', err) 
+            console.log('Error:', err) 
         })
 
     return {
